@@ -6,6 +6,23 @@ wb = load_workbook('Retting.xlsx')
 ws = wb.active
 
 
+def subtasks_per_tasks(task_number):
+    list_of_subtasks = organize_subtasks(list_subtasks())[task_number - 1]
+    print('subtasks_per_task: ', list_of_subtasks)
+
+
+# UNFINISHED
+def generate_mistake_lists():
+    list_of_subtasks = organize_subtasks(list_subtasks())
+    new_task_number = 0
+    for task in list_of_subtasks:
+        for subtask in task:
+            if subtask == 'a':
+                new_task_number += 1
+            full_task_name = f'{new_task_number}{subtask}'
+            print(full_task_name)
+
+
 # Returns tasks numbers in a list
 def find_task_numbers():
     rng = ws['B2':'U2']
@@ -61,7 +78,4 @@ def nearby_cell(selected_cell, direction):
 
 
 # Check
-deloppgaver = list_subtasks()
-oppgaver = organize_subtasks(deloppgaver)
-print(find_task_numbers())
-print(oppgaver)
+#print(organize_subtasks(list_subtasks())[0])

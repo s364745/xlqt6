@@ -4,6 +4,9 @@ from PyQt6 import QtWidgets as qtw
 from PyQt6 import QtCore as qtc
 from PyQt6 import QtGui as qtq
 from PyQt6 import uic
+from PyQt6.QtWidgets import QVBoxLayout, QListWidgetItem, QTableWidgetItem, QWidget
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_template import FigureCanvas
 
 # Files
 import xlcontrol as xl
@@ -22,27 +25,95 @@ class MainWindow(baseClass):
         self.ui = gui()
         self.ui.setupUi(self)
 
-        # Code starts here
-        self.ui.min_knapp.clicked.connect(self.get_data)
-
-        self.ui.addTabButton.clicked.connect(self.generate_tab)
-
-        self.ui.removeTabButton.clicked.connect(self.remove_tab)
+        self.load_student_data(100)
+        self.load_mistake_list()
+        self.load_student_answers(100, 1)
+        self.load_task_list()
         # Code stops here
 
-    # Functions
-    def generate_tab(self):
-        self.ui.myTabs.addTab(qtw.QWidget(), 'Generated tab')
+    def load_task_list(self):
+        number = len(xl.find_task_numbers())
+        for i in range(number):
+            item = QListWidgetItem(f'Task {str(i+1)}')
+            self.ui.task_list.addItem(item)
 
-    def remove_tab(self):
-        self.ui.myTabs.removeTab(0)
+    def load_student_answers(self, student, task_number):
 
-    def get_data(self):
-        inData = self.ui.reqXl.text()
-        print(inData)
-        outData = xl.ws[inData].value
-        print(outData)
-        self.ui.min_text.setText(outData)
+        # Load right amount of columns
+        self.load_subtasks(task_number)
+
+        # Display candidateNr
+        self.ui.student_label.setText(f'Candidate: {str(student)}')
+
+        all_answers = self.load_student_data(student)
+        number_of_answers = xl.organize_subtasks(xl.list_subtasks())[task_number - 1]
+        print('all_answers: ', all_answers)
+        # print('To be answered here: ', number_of_answers)
+        # print('number of answers: ', len(number_of_answers))
+
+        counter = len(number_of_answers)
+
+        for i in range(counter):
+            item = QTableWidgetItem(str(all_answers[i]))
+            self.ui.answer_table.setItem(1, i, item)
+            print(all_answers[i])
+
+    def load_subtasks(self, task_number):
+
+        all_tasks = xl.organize_subtasks(xl.list_subtasks())
+        index = task_number - 1
+        selected_tasks = all_tasks[index]
+        number_of_tasks = len(selected_tasks)
+
+        vertical_headers = ['Max Points:', 'Points:', 'Mistakes:']
+
+        # Make rows of tasks
+        self.ui.answer_table.setRowCount(3)
+        # |character|points|comment|
+        self.ui.answer_table.setColumnCount(number_of_tasks)
+
+        self.ui.answer_table.setHorizontalHeaderLabels(selected_tasks)
+        self.ui.answer_table.setVerticalHeaderLabels(vertical_headers)
+
+    def load_mistake_list(self):
+        mistake_list = ['Mistake 1:    - 2', 'Mistake 2:    - 4']
+        for mistake in mistake_list:
+            item = QListWidgetItem(mistake)
+            item.setFlags(item.flags() | qtc.Qt.ItemFlag.ItemIsUserCheckable)
+            item.setCheckState(qtc.Qt.CheckState.Unchecked)
+            self.ui.lista.addItem(item)
+
+    def load_student_data(self, candidate_nr):
+
+        # ---------------------------
+        row_nr = candidate_nr - 96
+        # ---------------------------
+
+        row_nr = 4
+        candidate_values = []
+        for cell in xl.ws[f'B{row_nr}':f'U{row_nr}'][0]:
+            candidate_values.append(cell.value)
+        # print(candidate_values)
+
+        return candidate_values
+
+    def add_row(self):
+        num_rows = self.ui.answer_table.rowCount()
+        self.ui.answer_table.setRowCount(num_rows + 1)
+
+    def rm_row(self):
+        num_rows = self.ui.answer_table.rowCount()
+        self.ui.answer_table.setRowCount(num_rows - 1)
+
+    def add_col(self):
+        num_cols = self.ui.answer_table.columnCount()
+        self.ui.answer_table.setColumnCount(num_cols + 1)
+
+    def rm_col(self):
+        num_cols = self.ui.answer_table.columnCount()
+        self.ui.answer_table.setColumnCount(num_cols - 1)
+
+    # Dummy Chart
 
 
 if __name__ == '__main__':
