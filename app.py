@@ -25,8 +25,15 @@ class MainWindow(baseClass):
         self.ui = gui()
         self.ui.setupUi(self)
 
+        # Manage mistakes
+        self.load_mistakes_table()
+        self.load_mistake_headers()
+        self.ui.add_mistake.clicked.connect(self.add_mistake)
+        self.ui.rm_mistake.clicked.connect(self.rm_mistake)
+
+
+        # Manage answer data
         self.load_student_data(100)
-        self.load_mistake_list()
         self.load_student_answers(100, 1)
         self.load_task_list()
         # Code stops here
@@ -34,7 +41,7 @@ class MainWindow(baseClass):
     def load_task_list(self):
         number = len(xl.find_task_numbers())
         for i in range(number):
-            item = QListWidgetItem(f'Task {str(i+1)}')
+            item = QListWidgetItem(f'Task {str(i + 1)}')
             self.ui.task_list.addItem(item)
 
     def load_student_answers(self, student, task_number):
@@ -42,8 +49,8 @@ class MainWindow(baseClass):
         # Load right amount of columns
         self.load_subtasks(task_number)
 
-        # Display candidateNr
-        self.ui.student_label.setText(f'Candidate: {str(student)}')
+        # Display candidateN
+        # self.ui.student_label.setText(f'Candidate: {str(student)}')
 
         all_answers = self.load_student_data(student)
         number_of_answers = xl.organize_subtasks(xl.list_subtasks())[task_number - 1]
@@ -75,13 +82,41 @@ class MainWindow(baseClass):
         self.ui.answer_table.setHorizontalHeaderLabels(selected_tasks)
         self.ui.answer_table.setVerticalHeaderLabels(vertical_headers)
 
-    def load_mistake_list(self):
-        mistake_list = ['Mistake 1:    - 2', 'Mistake 2:    - 4']
-        for mistake in mistake_list:
-            item = QListWidgetItem(mistake)
-            item.setFlags(item.flags() | qtc.Qt.ItemFlag.ItemIsUserCheckable)
-            item.setCheckState(qtc.Qt.CheckState.Unchecked)
-            self.ui.lista.addItem(item)
+    # Mistake manager
+    def load_mistake_headers(self):
+        headers = ['Apply', 'Points lost', 'Explanation']
+        self.ui.mistake_table.setHorizontalHeaderLabels(headers)
+
+    def add_mistake(self):
+        row_count = self.ui.mistake_table.rowCount()
+        self.ui.mistake_table.insertRow(row_count)
+
+        item = QTableWidgetItem()
+        item.setFlags(item.flags() | qtc.Qt.ItemFlag.ItemIsUserCheckable)
+        item.setCheckState(qtc.Qt.CheckState.Unchecked)
+        self.ui.mistake_table.setItem(row_count, 0, item)
+
+    def rm_mistake(self):
+        selected_mistake = self.ui.mistake_table.currentRow()
+        # NEEDS CONFIRMATION!
+        if selected_mistake >= 0:
+            self.ui.mistake_table.removeRow(selected_mistake)
+
+    def load_mistakes_table(self):
+        self.ui.mistake_table.setRowCount(1)
+        item = QTableWidgetItem()
+        item.setFlags(item.flags() | qtc.Qt.ItemFlag.ItemIsUserCheckable)
+        item.setCheckState(qtc.Qt.CheckState.Unchecked)
+        self.ui.mistake_table.setItem(0, 0, item)
+
+    ### LIST ###
+    # def load_mistake_list(self):
+    #     mistake_list = ['Mistake 1:    - 2', 'Mistake 2:    - 4']
+    #     for mistake in mistake_list:
+    #         item = QListWidgetItem(mistake)
+    #         item.setFlags(item.flags() | qtc.Qt.ItemFlag.ItemIsUserCheckable)
+    #         item.setCheckState(qtc.Qt.CheckState.Unchecked)
+    #         self.ui.lista.addItem(item)
 
     def load_student_data(self, candidate_nr):
 
