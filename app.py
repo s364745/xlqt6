@@ -25,10 +25,15 @@ class MainWindow(baseClass):
         self.ui = gui()
         self.ui.setupUi(self)
 
-        self.load_student_data(100)
         self.load_mistake_list()
-        self.load_student_answers(100, 1)
+        self.total_student_number = xl.total_student_number()
+
+        self.load_student_answers(0, 1)
+  
         self.load_task_list()
+        self.ui.pre_sudent.clicked.connect(lambda: self.load_student_answers(self.student-1, self.task))
+        self.ui.next_student.clicked.connect(lambda: self.load_student_answers(self.student+1, self.task))
+
         # Code stops here
 
     def load_task_list(self):
@@ -37,16 +42,31 @@ class MainWindow(baseClass):
             item = QListWidgetItem(f'Task {str(i+1)}')
             self.ui.task_list.addItem(item)
 
+        self.ui.task_list.itemClicked.connect(self.handle_item_clicked)
+
+    def handle_item_clicked(self, item):
+        task_trigger = item.text().split()[-1] #get the task number
+        self.load_student_answers(self.student, int(task_trigger))
+
+    def update_progress_bar(self):
+        ratio = int(100*(self.student/self.total_student_number))
+        self.ui.progressBar.setValue(ratio)
+
+
     def load_student_answers(self, student, task_number):
+        if student >= 0 and student < self.total_student_number:
+            self.student=student
+        self.task=task_number
 
         # Load right amount of columns
-        self.load_subtasks(task_number)
+        self.load_subtasks(self.task)
 
         # Display candidateNr
-        self.ui.student_label.setText(f'Candidate: {str(student)}')
+        print(xl.candidate_nbr(self.student))
+        self.ui.student_label.setText(f'Candidate: {str(xl.candidate_nbr(self.student))}')
 
-        all_answers = self.load_student_data(student)
-        number_of_answers = xl.organize_subtasks(xl.list_subtasks())[task_number - 1]
+        all_answers = self.load_student_data(self.student)
+        number_of_answers = xl.organize_subtasks(xl.list_subtasks())[self.task - 1]
         print('all_answers: ', all_answers)
         # print('To be answered here: ', number_of_answers)
         # print('number of answers: ', len(number_of_answers))
@@ -57,6 +77,8 @@ class MainWindow(baseClass):
             item = QTableWidgetItem(str(all_answers[i]))
             self.ui.answer_table.setItem(1, i, item)
             print(all_answers[i])
+
+        self.update_progress_bar()
 
     def load_subtasks(self, task_number):
 
@@ -83,13 +105,8 @@ class MainWindow(baseClass):
             item.setCheckState(qtc.Qt.CheckState.Unchecked)
             self.ui.lista.addItem(item)
 
-    def load_student_data(self, candidate_nr):
-
-        # ---------------------------
-        row_nr = candidate_nr - 96
-        # ---------------------------
-
-        row_nr = 4
+    def load_student_data(self, student_nbr):
+        row_nr = student_nbr + 4 #first 4 rows does'nt count
         candidate_values = []
         for cell in xl.ws[f'B{row_nr}':f'U{row_nr}'][0]:
             candidate_values.append(cell.value)
