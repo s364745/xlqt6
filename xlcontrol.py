@@ -25,7 +25,7 @@ def generate_mistake_lists():
 
 # Returns tasks numbers in a list
 def find_task_numbers():
-    rng = ws['B2':'U2']
+    rng = ws.iter_cols(min_row=2, max_row=2, min_col=2, max_col=ws.max_column)
     tasks = []
     for i in rng:
         for j in i:
@@ -35,9 +35,23 @@ def find_task_numbers():
 
     return tasks
 
+def total_student_number():
+    rng = ws.iter_cols(min_row=4, max_row=ws.max_row, min_col=1, max_col=1)
+    student_nbr = 0
+    for i in rng:
+        for j in i:
+            selected_cell = j
+            if j.value is not None:
+                student_nbr+=1
+    return student_nbr
+
+def candidate_nbr(student_index):
+    row = student_index+4
+    return ws["A"+str(row)].value
+
 
 def list_subtasks():
-    rng = ws['B3':'U3']
+    rng = ws.iter_cols(min_row=3, max_row=3, min_col=2, max_col=ws.max_column)
     tasks = []
     for i in rng:
         for j in i:
