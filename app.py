@@ -81,7 +81,7 @@ class MainWindow(baseClass):
 
         for i in range(counter):
             item = QTableWidgetItem(str(all_answers[i]))
-            self.ui.answer_table.setItem(1, i, item)
+            self.ui.answer_table.setItem(i, 1, item)
             print(all_answers[i])
 
         self.update_progress_bar()
@@ -93,15 +93,15 @@ class MainWindow(baseClass):
         selected_tasks = all_tasks[index]
         number_of_tasks = len(selected_tasks)
 
-        vertical_headers = ['Max Points:', 'Points:', 'Mistakes:']
+        selected_headers = ['Max Points:', 'Points:', 'Mistakes:']
 
         # Make rows of tasks
-        self.ui.answer_table.setRowCount(3)
+        self.ui.answer_table.setColumnCount(len(selected_headers))
         # |character|points|comment|
-        self.ui.answer_table.setColumnCount(number_of_tasks)
+        self.ui.answer_table.setRowCount(number_of_tasks)
 
-        self.ui.answer_table.setHorizontalHeaderLabels(selected_tasks)
-        self.ui.answer_table.setVerticalHeaderLabels(vertical_headers)
+        self.ui.answer_table.setHorizontalHeaderLabels(selected_headers)
+        self.ui.answer_table.setVerticalHeaderLabels(selected_tasks)
 
     # Mistake manager
     def load_mistake_headers(self):
