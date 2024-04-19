@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1245</width>
+    <width>1577</width>
     <height>557</height>
    </rect>
   </property>
@@ -177,6 +177,29 @@
    </property>
    <property name="text">
     <string>Mistakes</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="bar_widget" native="true">
+   <property name="geometry">
+    <rect>
+     <x>1100</x>
+     <y>40</y>
+     <width>331</width>
+     <height>431</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="statistics_label">
+   <property name="geometry">
+    <rect>
+     <x>1240</x>
+     <y>10</y>
+     <width>49</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Statistics</string>
    </property>
   </widget>
  </widget>

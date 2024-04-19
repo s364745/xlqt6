@@ -5,8 +5,12 @@ from PyQt6 import QtCore as qtc
 from PyQt6 import QtGui as qtq
 from PyQt6 import uic
 from PyQt6.QtWidgets import QVBoxLayout, QListWidgetItem, QTableWidgetItem, QWidget
+
+# For statistics
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_template import FigureCanvas
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+import numpy as np
 
 # Files
 import xlcontrol as xl
@@ -31,16 +35,34 @@ class MainWindow(baseClass):
         self.ui.add_mistake.clicked.connect(self.add_mistake)
         self.ui.rm_mistake.clicked.connect(self.rm_mistake)
 
-
         # Manage answer data
         self.total_student_number = xl.total_student_number()
         self.load_student_answers(0, 1)
-        
+
         self.load_task_list()
-        self.ui.pre_sudent.clicked.connect(lambda: self.load_student_answers(self.student-1, self.task))
-        self.ui.next_student.clicked.connect(lambda: self.load_student_answers(self.student+1, self.task))
+        self.ui.pre_sudent.clicked.connect(lambda: self.load_student_answers(self.student - 1, self.task))
+        self.ui.next_student.clicked.connect(lambda: self.load_student_answers(self.student + 1, self.task))
+
+        # Statistics ----------------------------------------
+        bar_layout = qtw.QVBoxLayout(self.ui.bar_widget)
+        self.ui.bar_frame = QWidget()
+        bar_layout.addWidget(self.ui.bar_frame)
+        # Dummy data
+        x = np.arange(8)
+        y = np.random.randint(1, 10, size=8)
+        # Figure for bar chart
+        fig, ax = plt.subplots()
+        ax.bar(x, y)
+        # Matplotlib-canvas-widget
+        self.ui.canvas = FigureCanvas(fig)
+        bar_layout.addWidget(self.ui.canvas)
+        # ----------------------------------------------------
 
         # Code stops here
+
+    # Statistics
+    def load_bar_diagram(self):
+        pass
 
     def load_task_list(self):
         number = len(xl.find_task_numbers())
@@ -51,18 +73,17 @@ class MainWindow(baseClass):
         self.ui.task_list.itemClicked.connect(self.handle_item_clicked)
 
     def handle_item_clicked(self, item):
-        task_trigger = item.text().split()[-1] #get the task number
+        task_trigger = item.text().split()[-1]  # get the task number
         self.load_student_answers(self.student, int(task_trigger))
 
     def update_progress_bar(self):
-        ratio = int(100*(self.student/self.total_student_number))
+        ratio = int(100 * (self.student / self.total_student_number))
         self.ui.progressBar.setValue(ratio)
-
 
     def load_student_answers(self, student, task_number):
         if student >= 0 and student < self.total_student_number:
-            self.student=student
-        self.task=task_number
+            self.student = student
+        self.task = task_number
 
         # Load right amount of columns
         self.load_subtasks(self.task)
@@ -79,6 +100,7 @@ class MainWindow(baseClass):
 
         counter = len(number_of_answers)
 
+        # Load answers to column
         for i in range(counter):
             item = QTableWidgetItem(str(all_answers[i]))
             self.ui.answer_table.setItem(i, 1, item)
@@ -140,7 +162,7 @@ class MainWindow(baseClass):
     #         self.ui.lista.addItem(item)
 
     def load_student_data(self, student_nbr):
-        row_nr = student_nbr + 4 #first 4 rows does'nt count
+        row_nr = student_nbr + 4  # first 4 rows does'nt count
         candidate_values = []
         for cell in xl.ws[f'B{row_nr}':f'U{row_nr}'][0]:
             candidate_values.append(cell.value)
