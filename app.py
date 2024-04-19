@@ -69,7 +69,7 @@ class MainWindow(baseClass):
 
         # Display candidateNr
         print(xl.candidate_nbr(self.student))
-        self.ui.student_label.setText(f'Candidate: {str(xl.candidate_nbr(self.student))}')
+        self.ui.candidate_edit.setText(str(xl.candidate_nbr(self.student)))
 
         all_answers = self.load_student_data(self.student)
         number_of_answers = xl.organize_subtasks(xl.list_subtasks())[self.task - 1]
