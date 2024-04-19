@@ -4,11 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c50f5f14-a746-4634-99e9-2659bbcf0f35" name="Changes" comment="init">
+    <list default="true" id="c50f5f14-a746-4634-99e9-2659bbcf0f35" name="Changes" comment="update 1">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui.ui" beforeDir="false" afterPath="$PROJECT_DIR$/gui.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/xlcontrol.py" beforeDir="false" afterPath="$PROJECT_DIR$/xlcontrol.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,7 +63,9 @@
       <updated>1712755131337</updated>
       <workItem from="1712755138315" duration="30690000" />
       <workItem from="1712828364668" duration="1147000" />
-      <workItem from="1712852858143" duration="31880000" />
+      <workItem from="1712852858143" duration="32403000" />
+      <workItem from="1713438787595" duration="1783000" />
+      <workItem from="1713451994796" duration="2367000" />
     </task>
     <task id="LOCAL−00001" summary="init">
       <option name="closed" value="true" />
@@ -75,7 +74,14 @@
       <option name="presentableId" value="LOCAL−00001" />
       <updated>1712829765625</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL−00002" summary="update 1">
+      <option name="closed" value="true" />
+      <created>1712887075527</created>
+      <option name="number" value="LOCAL−00002" />
+      <option name="presentableId" value="LOCAL−00002" />
+      <updated>1712887075527</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -83,10 +89,11 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="init" />
-    <option name="LAST_COMMIT_MESSAGE" value="init" />
+    <MESSAGE value="update 1" />
+    <option name="LAST_COMMIT_MESSAGE" value="update 1" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/pyqt6basics$xlcontrol.coverage" NAME="xlcontrol Coverage Results" MODIFIED="1712876297654" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/pyqt6basics$app.coverage" NAME="app Coverage Results" MODIFIED="1712886576107" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/pyqt6basics$app.coverage" NAME="app Coverage Results" MODIFIED="1713439260636" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
