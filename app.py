@@ -4,7 +4,7 @@ from PyQt6 import QtWidgets as qtw
 from PyQt6 import QtCore as qtc
 from PyQt6 import QtGui as qtq
 from PyQt6 import uic
-from PyQt6.QtWidgets import QVBoxLayout, QListWidgetItem, QTableWidgetItem, QWidget
+from PyQt6.QtWidgets import QVBoxLayout, QListWidgetItem, QTableWidgetItem, QWidget, QMessageBox
 
 # For statistics
 import matplotlib.pyplot as plt
@@ -47,12 +47,15 @@ class MainWindow(baseClass):
         bar_layout = qtw.QVBoxLayout(self.ui.bar_widget)
         self.ui.bar_frame = QWidget()
         bar_layout.addWidget(self.ui.bar_frame)
-        # Dummy data
-        x = np.arange(8)
-        y = np.random.randint(1, 10, size=8)
+        # Loads bar chart
+        x, y = self.load_chart_mistakes()
         # Figure for bar chart
         fig, ax = plt.subplots()
         ax.bar(x, y)
+        # Labels
+        plt.xlabel('Mistakes')
+        plt.ylabel('Frequency')
+
         # Matplotlib-canvas-widget
         self.ui.canvas = FigureCanvas(fig)
         bar_layout.addWidget(self.ui.canvas)
@@ -61,8 +64,12 @@ class MainWindow(baseClass):
         # Code stops here
 
     # Statistics
-    def load_bar_diagram(self):
-        pass
+    def load_chart_mistakes(self):
+
+        # Dummy data, needs read data from excel
+        x = ['mistake 1', 'mistake 2', 'mistake 3']
+        y = [1, 2, 3]
+        return x, y
 
     def load_task_list(self):
         number = len(xl.find_task_numbers())
@@ -139,11 +146,41 @@ class MainWindow(baseClass):
         item.setCheckState(qtc.Qt.CheckState.Unchecked)
         self.ui.mistake_table.setItem(row_count, 0, item)
 
+    def save_mistake(self, points_lost, explanation):
+        # Needs to save the mistake to excel and update bar chart
+        pass
+
     def rm_mistake(self):
         selected_mistake = self.ui.mistake_table.currentRow()
-        # NEEDS CONFIRMATION!
+
+        # Should read mistake description and pass to message box. Not working for now
+
+        # info_cell = self.mistake_table.item(selected_mistake, 1)
+        # info_text = str(info_cell.text())
+        # print(info_text)
+
+        # Warning
         if selected_mistake >= 0:
-            self.ui.mistake_table.removeRow(selected_mistake)
+            status = self.rm_mistake_warning()
+
+            if status == 0:
+                pass
+            elif status == 1:
+                # if selected_mistake >= 0:
+                self.ui.mistake_table.removeRow(selected_mistake)
+
+    def rm_mistake_warning(self):
+        button = QMessageBox.warning(
+            self,
+            'Warning!',
+            'Are you sure you want to delete {description}? This action cannot be undone',
+            buttons=QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            defaultButton=QMessageBox.StandardButton.No
+        )
+        if button == QMessageBox.StandardButton.No:
+            return 0
+        elif button == QMessageBox.StandardButton.Yes:
+            return 1
 
     def load_mistakes_table(self):
         self.ui.mistake_table.setRowCount(1)
