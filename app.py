@@ -28,10 +28,11 @@ class MainWindow(baseClass):
         # Set up gui
         self.ui = gui()
         self.ui.setupUi(self)
+        self.student=1
 
         # Manage mistakes
-        self.load_mistakes_table()
         self.load_mistake_headers()
+        self.mistakes=xl.get_mistakes_list()
         self.ui.add_mistake.clicked.connect(self.add_mistake)
         self.ui.rm_mistake.clicked.connect(self.rm_mistake)
 
@@ -42,6 +43,8 @@ class MainWindow(baseClass):
         self.load_task_list()
         self.ui.pre_sudent.clicked.connect(lambda: self.load_student_answers(self.student - 1, self.task))
         self.ui.next_student.clicked.connect(lambda: self.load_student_answers(self.student + 1, self.task))
+
+        self.update_mistakes_tables()
 
         # Statistics ----------------------------------------
         bar_layout = qtw.QVBoxLayout(self.ui.bar_widget)
@@ -76,7 +79,8 @@ class MainWindow(baseClass):
         for i in range(number):
             item = QListWidgetItem(f'Task {str(i + 1)}')
             self.ui.task_list.addItem(item)
-
+            if xl.mistakesnumber() < number:
+                self.mistakes.append({ "mistakeID" : xl.add_mistakes(i+1), "task" : i+1, "index" : 0, "malus" : 0, "description" : "" }) # to add to the excel files
         self.ui.task_list.itemClicked.connect(self.handle_item_clicked)
 
     def handle_item_clicked(self, item):
@@ -121,6 +125,7 @@ class MainWindow(baseClass):
             self.ui.answer_table.setItem(i, 1, item)
 
         self.update_progress_bar()
+        self.update_mistakes_tables()
 
     def load_subtasks(self, task_number):
 
@@ -170,10 +175,6 @@ class MainWindow(baseClass):
         item.setFlags(item.flags() | qtc.Qt.ItemFlag.ItemIsUserCheckable)
         item.setCheckState(qtc.Qt.CheckState.Unchecked)
         self.ui.mistake_table.setItem(row_count, 0, item)
-
-    def save_mistake(self, points_lost, explanation):
-        # Needs to save the mistake to excel and update bar chart
-        pass
 
     def rm_mistake(self):
         selected_mistake = self.ui.mistake_table.currentRow()
