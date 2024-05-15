@@ -4,9 +4,13 @@ from PyQt6 import QtWidgets as qtw
 from PyQt6 import QtCore as qtc
 from PyQt6 import QtGui as qtq
 from PyQt6 import uic
-from PyQt6.QtWidgets import QVBoxLayout, QListWidgetItem, QTableWidgetItem, QWidget
+from PyQt6.QtWidgets import QVBoxLayout, QListWidgetItem, QTableWidgetItem, QWidget, QMessageBox
+
+# For statistics
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_template import FigureCanvas
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+import numpy as np
 
 # Files
 import xlcontrol as xl
@@ -31,16 +35,41 @@ class MainWindow(baseClass):
         self.ui.add_mistake.clicked.connect(self.add_mistake)
         self.ui.rm_mistake.clicked.connect(self.rm_mistake)
 
-
         # Manage answer data
         self.total_student_number = xl.total_student_number()
         self.load_student_answers(0, 1)
-        
+
         self.load_task_list()
-        self.ui.pre_sudent.clicked.connect(lambda: self.load_student_answers(self.student-1, self.task))
-        self.ui.next_student.clicked.connect(lambda: self.load_student_answers(self.student+1, self.task))
+        self.ui.pre_sudent.clicked.connect(lambda: self.load_student_answers(self.student - 1, self.task))
+        self.ui.next_student.clicked.connect(lambda: self.load_student_answers(self.student + 1, self.task))
+
+        # Statistics ----------------------------------------
+        bar_layout = qtw.QVBoxLayout(self.ui.bar_widget)
+        self.ui.bar_frame = QWidget()
+        bar_layout.addWidget(self.ui.bar_frame)
+        # Loads bar chart
+        x, y = self.load_chart_mistakes()
+        # Figure for bar chart
+        fig, ax = plt.subplots()
+        ax.bar(x, y)
+        # Labels
+        plt.xlabel('Mistakes')
+        plt.ylabel('Frequency')
+
+        # Matplotlib-canvas-widget
+        self.ui.canvas = FigureCanvas(fig)
+        bar_layout.addWidget(self.ui.canvas)
+        # ----------------------------------------------------
 
         # Code stops here
+
+    # Statistics
+    def load_chart_mistakes(self):
+
+        # Dummy data, needs read data from excel
+        x = ['mistake 1', 'mistake 2', 'mistake 3']
+        y = [1, 2, 3]
+        return x, y
 
     def load_task_list(self):
         number = len(xl.find_task_numbers())
@@ -51,25 +80,24 @@ class MainWindow(baseClass):
         self.ui.task_list.itemClicked.connect(self.handle_item_clicked)
 
     def handle_item_clicked(self, item):
-        task_trigger = item.text().split()[-1] #get the task number
+        task_trigger = item.text().split()[-1]  # get the task number
         self.load_student_answers(self.student, int(task_trigger))
 
     def update_progress_bar(self):
-        ratio = int(100*(self.student/self.total_student_number))
+        ratio = int(100 * (self.student / self.total_student_number))
         self.ui.progressBar.setValue(ratio)
-
 
     def load_student_answers(self, student, task_number):
         if student >= 0 and student < self.total_student_number:
-            self.student=student
-        self.task=task_number
+            self.student = student
+        self.task = task_number
 
         # Load right amount of columns
         self.load_subtasks(self.task)
 
         # Display candidateNr
         print(xl.candidate_nbr(self.student))
-        self.ui.student_label.setText(f'Candidate: {str(xl.candidate_nbr(self.student))}')
+        self.ui.candidate_edit.setText(str(xl.candidate_nbr(self.student)))
 
         all_answers = self.load_student_data(self.student)
         number_of_answers = xl.organize_subtasks(xl.list_subtasks())[self.task - 1]
@@ -79,9 +107,10 @@ class MainWindow(baseClass):
 
         counter = len(number_of_answers)
 
+        # Load answers to column
         for i in range(counter):
             item = QTableWidgetItem(str(all_answers[i]))
-            self.ui.answer_table.setItem(1, i, item)
+            self.ui.answer_table.setItem(i, 1, item)
             print(all_answers[i])
 
         self.update_progress_bar()
@@ -93,15 +122,15 @@ class MainWindow(baseClass):
         selected_tasks = all_tasks[index]
         number_of_tasks = len(selected_tasks)
 
-        vertical_headers = ['Max Points:', 'Points:', 'Mistakes:']
+        selected_headers = ['Max Points:', 'Points:', 'Mistakes:']
 
         # Make rows of tasks
-        self.ui.answer_table.setRowCount(3)
+        self.ui.answer_table.setColumnCount(len(selected_headers))
         # |character|points|comment|
-        self.ui.answer_table.setColumnCount(number_of_tasks)
+        self.ui.answer_table.setRowCount(number_of_tasks)
 
-        self.ui.answer_table.setHorizontalHeaderLabels(selected_tasks)
-        self.ui.answer_table.setVerticalHeaderLabels(vertical_headers)
+        self.ui.answer_table.setHorizontalHeaderLabels(selected_headers)
+        self.ui.answer_table.setVerticalHeaderLabels(selected_tasks)
 
     # Mistake manager
     def load_mistake_headers(self):
@@ -117,11 +146,41 @@ class MainWindow(baseClass):
         item.setCheckState(qtc.Qt.CheckState.Unchecked)
         self.ui.mistake_table.setItem(row_count, 0, item)
 
+    def save_mistake(self, points_lost, explanation):
+        # Needs to save the mistake to excel and update bar chart
+        pass
+
     def rm_mistake(self):
         selected_mistake = self.ui.mistake_table.currentRow()
-        # NEEDS CONFIRMATION!
+
+        # Should read mistake description and pass to message box. Not working for now
+
+        # info_cell = self.mistake_table.item(selected_mistake, 1)
+        # info_text = str(info_cell.text())
+        # print(info_text)
+
+        # Warning
         if selected_mistake >= 0:
-            self.ui.mistake_table.removeRow(selected_mistake)
+            status = self.rm_mistake_warning()
+
+            if status == 0:
+                pass
+            elif status == 1:
+                # if selected_mistake >= 0:
+                self.ui.mistake_table.removeRow(selected_mistake)
+
+    def rm_mistake_warning(self):
+        button = QMessageBox.warning(
+            self,
+            'Warning!',
+            'Are you sure you want to delete {description}? This action cannot be undone',
+            buttons=QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            defaultButton=QMessageBox.StandardButton.No
+        )
+        if button == QMessageBox.StandardButton.No:
+            return 0
+        elif button == QMessageBox.StandardButton.Yes:
+            return 1
 
     def load_mistakes_table(self):
         self.ui.mistake_table.setRowCount(1)
@@ -140,7 +199,7 @@ class MainWindow(baseClass):
     #         self.ui.lista.addItem(item)
 
     def load_student_data(self, student_nbr):
-        row_nr = student_nbr + 4 #first 4 rows does'nt count
+        row_nr = student_nbr + 4  # first 4 rows does'nt count
         candidate_values = []
         for cell in xl.ws[f'B{row_nr}':f'U{row_nr}'][0]:
             candidate_values.append(cell.value)

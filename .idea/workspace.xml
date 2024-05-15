@@ -4,8 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c50f5f14-a746-4634-99e9-2659bbcf0f35" name="Changes" comment="update 1">
+    <list default="true" id="c50f5f14-a746-4634-99e9-2659bbcf0f35" name="Changes" comment="Added bar-chart, lacks functionality for now">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui.ui" beforeDir="false" afterPath="$PROJECT_DIR$/gui.ui" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,6 +68,9 @@
       <workItem from="1712852858143" duration="32403000" />
       <workItem from="1713438787595" duration="1783000" />
       <workItem from="1713451994796" duration="2367000" />
+      <workItem from="1713519078673" duration="13540000" />
+      <workItem from="1714119408958" duration="602000" />
+      <workItem from="1714646222246" duration="9302000" />
     </task>
     <task id="LOCAL−00001" summary="init">
       <option name="closed" value="true" />
@@ -81,7 +86,28 @@
       <option name="presentableId" value="LOCAL−00002" />
       <updated>1712887075527</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL−00003" summary="Mistake list is now a table, add and remove works (when cell is selected), edit button does nothing, might be replaced by onChange">
+      <option name="closed" value="true" />
+      <created>1713527822849</created>
+      <option name="number" value="LOCAL−00003" />
+      <option name="presentableId" value="LOCAL−00003" />
+      <updated>1713527822849</updated>
+    </task>
+    <task id="LOCAL−00004" summary="Rows and columns reversed in mistakes list. answers loads in correct column">
+      <option name="closed" value="true" />
+      <created>1713530490156</created>
+      <option name="number" value="LOCAL−00004" />
+      <option name="presentableId" value="LOCAL−00004" />
+      <updated>1713530490156</updated>
+    </task>
+    <task id="LOCAL−00005" summary="Added bar-chart, lacks functionality for now">
+      <option name="closed" value="true" />
+      <created>1713534694834</created>
+      <option name="number" value="LOCAL−00005" />
+      <option name="presentableId" value="LOCAL−00005" />
+      <updated>1713534694834</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -90,10 +116,13 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="init" />
     <MESSAGE value="update 1" />
-    <option name="LAST_COMMIT_MESSAGE" value="update 1" />
+    <MESSAGE value="Mistake list is now a table, add and remove works (when cell is selected), edit button does nothing, might be replaced by onChange" />
+    <MESSAGE value="Rows and columns reversed in mistakes list. answers loads in correct column" />
+    <MESSAGE value="Added bar-chart, lacks functionality for now" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added bar-chart, lacks functionality for now" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/pyqt6basics$xlcontrol.coverage" NAME="xlcontrol Coverage Results" MODIFIED="1712876297654" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/pyqt6basics$app.coverage" NAME="app Coverage Results" MODIFIED="1713439260636" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/pyqt6basics$app.coverage" NAME="app Coverage Results" MODIFIED="1714658581284" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
