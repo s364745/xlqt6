@@ -164,10 +164,23 @@ class MainWindow(baseClass):
 
         # info_cell = self.mistake_table.item(selected_mistake, 1)
         # info_text = str(info_cell.text())
+        #index = selected_mistake et task = self.task
 
         # Warning
         if selected_mistake >= 0:
             status = self.rm_mistake_warning()
+
+            mistake_id=None
+
+            for mistake in self.mistakes:
+                if mistake["index"] == selected_mistake and mistake["task"] == self.task:
+                    mistake_id=mistake["mistakeID"]
+                    self.mistakes.remove(mistake)
+
+            print(mistake_id)
+
+            if mistake_id != None:
+                xl.del_mistakes(mistake_id)
 
             if status == 0:
                 pass
