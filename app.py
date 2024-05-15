@@ -80,12 +80,24 @@ class MainWindow(baseClass):
         self.ui.task_list.itemClicked.connect(self.handle_item_clicked)
 
     def handle_item_clicked(self, item):
+        #print(self.ui.task_list.row(item))
+        self.task = self.ui.task_list.row(item)+1
         task_trigger = item.text().split()[-1]  # get the task number
         self.load_student_answers(self.student, int(task_trigger))
 
     def update_progress_bar(self):
         ratio = int(100 * (self.student / self.total_student_number))
         self.ui.progressBar.setValue(ratio)
+
+    def extract_subtask(self, subtask_names, all_answer, task_index):
+        subtask_sizes = [len(subtask) for subtask in subtask_names]
+        
+        start_index = sum(subtask_sizes[:task_index])
+        end_index = start_index + subtask_sizes[task_index]
+
+        subtask_answers = all_answer[start_index:end_index]
+        
+        return subtask_answers
 
     def load_student_answers(self, student, task_number):
         if student >= 0 and student < self.total_student_number:
@@ -96,22 +108,17 @@ class MainWindow(baseClass):
         self.load_subtasks(self.task)
 
         # Display candidateNr
-        print(xl.candidate_nbr(self.student))
         self.ui.candidate_edit.setText(str(xl.candidate_nbr(self.student)))
 
         all_answers = self.load_student_data(self.student)
-        number_of_answers = xl.organize_subtasks(xl.list_subtasks())[self.task - 1]
-        print('all_answers: ', all_answers)
-        # print('To be answered here: ', number_of_answers)
-        # print('number of answers: ', len(number_of_answers))
-
-        counter = len(number_of_answers)
+        subtask_names = xl.organize_subtasks(xl.list_subtasks())
+        
+        subtask_answers = self.extract_subtask(subtask_names, all_answers, self.task-1)
 
         # Load answers to column
-        for i in range(counter):
-            item = QTableWidgetItem(str(all_answers[i]))
+        for i in range(len(subtask_answers)):
+            item = QTableWidgetItem(str(subtask_answers[i]))
             self.ui.answer_table.setItem(i, 1, item)
-            print(all_answers[i])
 
         self.update_progress_bar()
 
@@ -157,7 +164,6 @@ class MainWindow(baseClass):
 
         # info_cell = self.mistake_table.item(selected_mistake, 1)
         # info_text = str(info_cell.text())
-        # print(info_text)
 
         # Warning
         if selected_mistake >= 0:
@@ -203,7 +209,6 @@ class MainWindow(baseClass):
         candidate_values = []
         for cell in xl.ws[f'B{row_nr}':f'U{row_nr}'][0]:
             candidate_values.append(cell.value)
-        # print(candidate_values)
 
         return candidate_values
 
