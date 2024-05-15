@@ -188,21 +188,32 @@ class MainWindow(baseClass):
         elif button == QMessageBox.StandardButton.Yes:
             return 1
 
-    def load_mistakes_table(self):
-        self.ui.mistake_table.setRowCount(1)
-        item = QTableWidgetItem()
-        item.setFlags(item.flags() | qtc.Qt.ItemFlag.ItemIsUserCheckable)
-        item.setCheckState(qtc.Qt.CheckState.Unchecked)
-        self.ui.mistake_table.setItem(0, 0, item)
 
-    ### LIST ###
-    # def load_mistake_list(self):
-    #     mistake_list = ['Mistake 1:    - 2', 'Mistake 2:    - 4']
-    #     for mistake in mistake_list:
-    #         item = QListWidgetItem(mistake)
-    #         item.setFlags(item.flags() | qtc.Qt.ItemFlag.ItemIsUserCheckable)
-    #         item.setCheckState(qtc.Qt.CheckState.Unchecked)
-    #         self.ui.lista.addItem(item)
+    def update_mistakes_tables(self):
+        self.ui.mistake_table.clearContents()
+        self.ui.mistake_table.setRowCount(0)
+        count=0
+        for i, mistake in enumerate(self.mistakes):
+            if mistake["task"] == self.task:
+                row_count = self.ui.mistake_table.rowCount()
+                self.ui.mistake_table.insertRow(row_count)
+
+                checkbox_item = QTableWidgetItem()
+                checkbox_item.setFlags(checkbox_item.flags() | qtc.Qt.ItemFlag.ItemIsUserCheckable)
+                checkbox_item.setCheckState(qtc.Qt.CheckState.Unchecked)
+                if type(mistake["malus"]) is not int :
+                    mistake["malus"] = 0
+                self.ui.mistake_table.setItem(row_count, 0, checkbox_item)
+                txt_item = QTableWidgetItem()
+                txt_item.setText(str(mistake["malus"]))
+                self.ui.mistake_table.setItem(row_count, 1, txt_item)
+                desc_item = QTableWidgetItem()
+                desc_item.setText(mistake["description"])
+                self.ui.mistake_table.setItem(row_count, 2, desc_item)
+                mistake["index"] = row_count
+                count+=1
+
+        self.ui.mistake_table.setRowCount(count)
 
     def load_student_data(self, student_nbr):
         row_nr = student_nbr + 4  # first 4 rows does'nt count
