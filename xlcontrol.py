@@ -57,6 +57,8 @@ def list_subtasks():
         for j in i:
             tasks.append(j.value)
 
+    tasks = list(filter(lambda x: x is not None, tasks))
+
     return tasks
 
 
