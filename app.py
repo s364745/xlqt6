@@ -143,10 +143,28 @@ class MainWindow(baseClass):
     def load_mistake_headers(self):
         headers = ['Apply', 'Points lost', 'Explanation']
         self.ui.mistake_table.setHorizontalHeaderLabels(headers)
+        self.ui.mistake_table.cellChanged.connect(self.up_mistake)
+
+    def up_mistake(self, row, column):
+        if column in (0, 1, 2) :
+            modified_value = self.ui.mistake_table.item(row, column).text()
+            if modified_value != "":
+                for mistake in self.mistakes:
+                    if mistake["index"] == row and mistake["task"] == self.task:
+                        if column == 1:
+                            mistake["malus"] = int(modified_value)
+                            xl.up_mistakes(mistake["mistakeID"], mistake["task"], mistake["malus"], mistake["description"])
+                        elif column == 2:
+                            mistake["description"] = modified_value
+                            xl.up_mistakes(mistake["mistakeID"], mistake["task"], mistake["malus"], mistake["description"])
+            #print("Cell ({}, {}) modified w/ : {}".format(row, column, modified_value))
 
     def add_mistake(self):
         row_count = self.ui.mistake_table.rowCount()
         self.ui.mistake_table.insertRow(row_count)
+
+
+        self.mistakes.append({ "mistakeID" : xl.add_mistakes(self.task), "task" : self.task, "index" : self.ui.mistake_table.rowCount()-1, "malus" : 0, "description" : "" }) # to add to the excel files
 
         item = QTableWidgetItem()
         item.setFlags(item.flags() | qtc.Qt.ItemFlag.ItemIsUserCheckable)
