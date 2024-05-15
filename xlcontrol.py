@@ -2,26 +2,97 @@
 from openpyxl.workbook import Workbook
 from openpyxl import load_workbook
 
-wb = load_workbook('Retting.xlsx')
+token = "xlqt" # token after every sheets name to avoid writting over anything else
+excel_file_name = 'Retting.xlsx'
+
+wb = load_workbook(excel_file_name)
 ws = wb.active
+# ws : active sheet, rs : result sheet, ms : mistakes sheet
+
+rs = None
+ms = None
+if "result_"+token not in wb.sheetnames:
+    rs = wb.create_sheet("result_"+token)
+    rs["A1"]="Student ID"
+    rs["B1"]="Final grade"
+    rs["C1"]="Mistake(s)"
+    wb.save(excel_file_name)
+else:
+    rs = wb["result_"+token]
+
+if "mistakes_"+token not in wb.sheetnames:
+    ms = wb.create_sheet("mistakes_"+token)
+    ms["A1"]="Mistake ID"
+    ms["B1"]="Task ID"
+    ms["C1"]="Malus"
+    ms["D1"]="Description"
+    wb.save(excel_file_name)
+else:
+    ms = wb["mistakes_"+token]
 
 
 def subtasks_per_tasks(task_number):
     list_of_subtasks = organize_subtasks(list_subtasks())[task_number - 1]
     print('subtasks_per_task: ', list_of_subtasks)
 
+def get_mistakes():
+    #list_of_subtasks = organize_subtasks(list_subtasks())
+    #new_task_number = 0
+    #for task in list_of_subtasks:
+    #    for subtask in task:
+    #        if subtask == 'a':
+    #            new_task_number += 1
+    #        full_task_name = f'{new_task_number}{subtask}'
+    #        print(full_task_name)
+    pass
 
-# UNFINISHED
-def generate_mistake_lists():
-    list_of_subtasks = organize_subtasks(list_subtasks())
-    new_task_number = 0
-    for task in list_of_subtasks:
-        for subtask in task:
-            if subtask == 'a':
-                new_task_number += 1
-            full_task_name = f'{new_task_number}{subtask}'
-            print(full_task_name)
+def get_mistakes_list():
+    rng = ms.iter_rows(min_row=2, max_row=ms.max_row, min_col=1, max_col=ws.max_column)
+    mistakes = []
+    for m in rng:
+        if any(m):
+            mistakes.append({ "mistakeID" :m[0].value, "task" : m[1].value, "index" : 0, "malus" : m[2].value, "description" : m[3].value })
+    return mistakes
 
+
+def add_mistakes(task):
+    max_value_col_A = -1
+
+    for cell in ms['A'][1:]:
+        if cell.value is not None:
+            if max_value_col_A is None or int(cell.value) > max_value_col_A:
+                max_value_col_A = cell.value
+    ms.append([max_value_col_A+1, task])
+    wb.save(excel_file_name)
+    return max_value_col_A+1 # return the ID of the new mistakes
+
+
+#to update mistakes
+def up_mistakes(mist_id, task, malus, description):
+    rng = ms.iter_rows(min_row=2, max_row=ms.max_row, min_col=1, max_col=ws.max_column)
+
+    for row in rng:
+        if row[0].value == mist_id:
+            if task > 0 :
+                row[1].value = task
+            if malus != 0:
+                row[2].value = malus
+            if description != "":
+                row[3].value = description
+    wb.save(excel_file_name)
+
+def del_mistakes(mist_id):
+    rng = ms.iter_rows(min_row=2, max_row=ms.max_row, min_col=1, max_col=ws.max_column)
+
+    for row in rng:
+        if row[0].value == mist_id:
+            row[1].value = ""
+            row[2].value = ""
+            row[3].value = ""
+    wb.save(excel_file_name)
+
+def mistakesnumber():
+    return ms.max_row-1
 
 # Returns tasks numbers in a list
 def find_task_numbers():
