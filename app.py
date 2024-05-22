@@ -28,10 +28,12 @@ class MainWindow(baseClass):
         # Set up gui
         self.ui = gui()
         self.ui.setupUi(self)
+        self.student=1
+        self.isCharged=False
 
         # Manage mistakes
-        self.load_mistakes_table()
         self.load_mistake_headers()
+        self.mistakes=xl.get_mistakes_list()
         self.ui.add_mistake.clicked.connect(self.add_mistake)
         self.ui.rm_mistake.clicked.connect(self.rm_mistake)
 
@@ -42,6 +44,8 @@ class MainWindow(baseClass):
         self.load_task_list()
         self.ui.pre_sudent.clicked.connect(lambda: self.load_student_answers(self.student - 1, self.task))
         self.ui.next_student.clicked.connect(lambda: self.load_student_answers(self.student + 1, self.task))
+
+        self.update_mistakes_tables()
 
         # Statistics ----------------------------------------
         bar_layout = qtw.QVBoxLayout(self.ui.bar_widget)
@@ -76,7 +80,8 @@ class MainWindow(baseClass):
         for i in range(number):
             item = QListWidgetItem(f'Task {str(i + 1)}')
             self.ui.task_list.addItem(item)
-
+            if xl.mistakesnumber() < number:
+                self.mistakes.append({ "mistakeID" : xl.add_mistakes(i+1), "task" : i+1, "index" : 0, "malus" : 0, "description" : "" }) # to add to the excel files
         self.ui.task_list.itemClicked.connect(self.handle_item_clicked)
 
     def handle_item_clicked(self, item):
@@ -121,6 +126,7 @@ class MainWindow(baseClass):
             self.ui.answer_table.setItem(i, 1, item)
 
         self.update_progress_bar()
+        self.update_mistakes_tables()
 
     def load_subtasks(self, task_number):
 
@@ -143,19 +149,39 @@ class MainWindow(baseClass):
     def load_mistake_headers(self):
         headers = ['Apply', 'Points lost', 'Explanation']
         self.ui.mistake_table.setHorizontalHeaderLabels(headers)
+        self.ui.mistake_table.cellChanged.connect(self.up_mistake)
+
+    def up_mistake(self, row, column):
+        if self.isCharged:
+            if column in (0, 1, 2) :
+                base_value = self.ui.mistake_table.item(row, column)
+                modified_value = base_value.text()
+                if modified_value != "" or base_value.checkState() != None:
+                    for mistake in self.mistakes:
+                        if mistake["index"] == row and mistake["task"] == self.task:
+                            if column == 1:
+                                mistake["malus"] = int(modified_value)
+                                xl.up_mistakes(mistake["mistakeID"], mistake["task"], mistake["malus"], mistake["description"])
+                            elif column == 2:
+                                mistake["description"] = modified_value
+                                xl.up_mistakes(mistake["mistakeID"], mistake["task"], mistake["malus"], mistake["description"])
+                            if base_value.checkState() == qtc.Qt.CheckState.Unchecked:
+                                xl.student_rem_mistakes(xl.candidate_nbr(self.student), mistake["mistakeID"])
+                            if base_value.checkState() == qtc.Qt.CheckState.Checked:
+                                xl.student_add_mistakes(xl.candidate_nbr(self.student), mistake["mistakeID"])
+                print("Cell ({}, {}) modified w/ : {}".format(row, column, modified_value))
 
     def add_mistake(self):
         row_count = self.ui.mistake_table.rowCount()
         self.ui.mistake_table.insertRow(row_count)
 
+
+        self.mistakes.append({ "mistakeID" : xl.add_mistakes(self.task), "task" : self.task, "index" : self.ui.mistake_table.rowCount()-1, "malus" : 0, "description" : "" }) # to add to the excel files
+
         item = QTableWidgetItem()
         item.setFlags(item.flags() | qtc.Qt.ItemFlag.ItemIsUserCheckable)
         item.setCheckState(qtc.Qt.CheckState.Unchecked)
         self.ui.mistake_table.setItem(row_count, 0, item)
-
-    def save_mistake(self, points_lost, explanation):
-        # Needs to save the mistake to excel and update bar chart
-        pass
 
     def rm_mistake(self):
         selected_mistake = self.ui.mistake_table.currentRow()
@@ -164,10 +190,21 @@ class MainWindow(baseClass):
 
         # info_cell = self.mistake_table.item(selected_mistake, 1)
         # info_text = str(info_cell.text())
+        #index = selected_mistake et task = self.task
 
         # Warning
         if selected_mistake >= 0:
             status = self.rm_mistake_warning()
+
+            mistake_id=None
+
+            for mistake in self.mistakes:
+                if mistake["index"] == selected_mistake and mistake["task"] == self.task:
+                    mistake_id=mistake["mistakeID"]
+                    self.mistakes.remove(mistake)
+
+            if mistake_id != None:
+                xl.del_mistakes(mistake_id)
 
             if status == 0:
                 pass
@@ -188,21 +225,38 @@ class MainWindow(baseClass):
         elif button == QMessageBox.StandardButton.Yes:
             return 1
 
-    def load_mistakes_table(self):
-        self.ui.mistake_table.setRowCount(1)
-        item = QTableWidgetItem()
-        item.setFlags(item.flags() | qtc.Qt.ItemFlag.ItemIsUserCheckable)
-        item.setCheckState(qtc.Qt.CheckState.Unchecked)
-        self.ui.mistake_table.setItem(0, 0, item)
+    def update_mistakes_tables(self):
+        self.isCharged=False
+        self.ui.mistake_table.clearContents()
+        self.ui.mistake_table.setRowCount(0)
+        count=0
+        mistake_of_this_student = xl.student_get_mistakes(xl.candidate_nbr(self.student))
+        for i, mistake in enumerate(self.mistakes):
+            if mistake["task"] == self.task:
+                row_count = self.ui.mistake_table.rowCount()
+                self.ui.mistake_table.insertRow(row_count)
 
-    ### LIST ###
-    # def load_mistake_list(self):
-    #     mistake_list = ['Mistake 1:    - 2', 'Mistake 2:    - 4']
-    #     for mistake in mistake_list:
-    #         item = QListWidgetItem(mistake)
-    #         item.setFlags(item.flags() | qtc.Qt.ItemFlag.ItemIsUserCheckable)
-    #         item.setCheckState(qtc.Qt.CheckState.Unchecked)
-    #         self.ui.lista.addItem(item)
+                checkbox_item = QTableWidgetItem()
+                checkbox_item.setFlags(checkbox_item.flags() | qtc.Qt.ItemFlag.ItemIsUserCheckable)
+                #checkbox_item.stateChanged.connect(lambda state, m_id=mistake["mistakeID"]: handle_checkbox_state_changed(state, m_id))
+                if mistake["mistakeID"] in mistake_of_this_student:
+                    checkbox_item.setCheckState(qtc.Qt.CheckState.Checked)
+                else:
+                    checkbox_item.setCheckState(qtc.Qt.CheckState.Unchecked)
+                if type(mistake["malus"]) is not int :
+                    mistake["malus"] = 0
+                self.ui.mistake_table.setItem(row_count, 0, checkbox_item)
+                txt_item = QTableWidgetItem()
+                txt_item.setText(str(mistake["malus"]))
+                self.ui.mistake_table.setItem(row_count, 1, txt_item)
+                desc_item = QTableWidgetItem()
+                desc_item.setText(mistake["description"])
+                self.ui.mistake_table.setItem(row_count, 2, desc_item)
+                mistake["index"] = row_count
+                count+=1
+
+        self.ui.mistake_table.setRowCount(count)
+        self.isCharged=True
 
     def load_student_data(self, student_nbr):
         row_nr = student_nbr + 4  # first 4 rows does'nt count
