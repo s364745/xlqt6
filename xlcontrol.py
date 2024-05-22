@@ -6,19 +6,18 @@ token = "xlqt" # token after every sheets name to avoid writting over anything e
 excel_file_name = 'Retting.xlsx'
 
 wb = load_workbook(excel_file_name)
-ws = wb.active
+ws = wb[wb.sheetnames[0]]
 # ws : active sheet, rs : result sheet, ms : mistakes sheet
 
 rs = None
 ms = None
-if "result_"+token not in wb.sheetnames:
-    rs = wb.create_sheet("result_"+token)
+if "student_mistakes_"+token not in wb.sheetnames:
+    rs = wb.create_sheet("student_mistakes_"+token)
     rs["A1"]="Student ID"
-    rs["B1"]="Final grade"
-    rs["C1"]="Mistake(s)"
+    rs["B1"]="Mistake(s)"
     wb.save(excel_file_name)
 else:
-    rs = wb["result_"+token]
+    rs = wb["student_mistakes_"+token]
 
 if "mistakes_"+token not in wb.sheetnames:
     ms = wb.create_sheet("mistakes_"+token)
@@ -35,19 +34,28 @@ def subtasks_per_tasks(task_number):
     list_of_subtasks = organize_subtasks(list_subtasks())[task_number - 1]
     print('subtasks_per_task: ', list_of_subtasks)
 
-def get_mistakes():
-    #list_of_subtasks = organize_subtasks(list_subtasks())
-    #new_task_number = 0
-    #for task in list_of_subtasks:
-    #    for subtask in task:
-    #        if subtask == 'a':
-    #            new_task_number += 1
-    #        full_task_name = f'{new_task_number}{subtask}'
-    #        print(full_task_name)
-    pass
+def student_get_mistakes(student_id):
+    mistakes=[]
+    for row in rs.iter_rows(min_row=2, max_row=rs.max_row, min_col=1, max_col=rs.max_column):
+        if row[0].value == student_id:
+            mistakes.append(row[1].value)
+    return mistakes
+
+def student_add_mistakes(student_id, mistake_id):
+    rs.append([student_id, mistake_id])
+    wb.save(excel_file_name)
+   
+def student_rem_mistakes(student_id, mistake_id):
+    rows_to_delete = []
+    for row in rs.iter_rows(min_row=1, max_row=rs.max_row):
+        if row[0].value == student_id and row[1].value == mistake_id:
+            rows_to_delete.append(row[0].row)
+    for row_index in sorted(rows_to_delete, reverse=True):
+        rs.delete_rows(row_index)
+    wb.save(excel_file_name)
 
 def get_mistakes_list():
-    rng = ms.iter_rows(min_row=2, max_row=ms.max_row, min_col=1, max_col=ws.max_column)
+    rng = ms.iter_rows(min_row=2, max_row=ms.max_row, min_col=1, max_col=ms.max_column)
     mistakes = []
     for m in rng:
         if any(m):

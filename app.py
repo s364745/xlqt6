@@ -29,6 +29,7 @@ class MainWindow(baseClass):
         self.ui = gui()
         self.ui.setupUi(self)
         self.student=1
+        self.isCharged=False
 
         # Manage mistakes
         self.load_mistake_headers()
@@ -151,18 +152,24 @@ class MainWindow(baseClass):
         self.ui.mistake_table.cellChanged.connect(self.up_mistake)
 
     def up_mistake(self, row, column):
-        if column in (0, 1, 2) :
-            modified_value = self.ui.mistake_table.item(row, column).text()
-            if modified_value != "":
-                for mistake in self.mistakes:
-                    if mistake["index"] == row and mistake["task"] == self.task:
-                        if column == 1:
-                            mistake["malus"] = int(modified_value)
-                            xl.up_mistakes(mistake["mistakeID"], mistake["task"], mistake["malus"], mistake["description"])
-                        elif column == 2:
-                            mistake["description"] = modified_value
-                            xl.up_mistakes(mistake["mistakeID"], mistake["task"], mistake["malus"], mistake["description"])
-            #print("Cell ({}, {}) modified w/ : {}".format(row, column, modified_value))
+        if self.isCharged:
+            if column in (0, 1, 2) :
+                base_value = self.ui.mistake_table.item(row, column)
+                modified_value = base_value.text()
+                if modified_value != "" or base_value.checkState() != None:
+                    for mistake in self.mistakes:
+                        if mistake["index"] == row and mistake["task"] == self.task:
+                            if column == 1:
+                                mistake["malus"] = int(modified_value)
+                                xl.up_mistakes(mistake["mistakeID"], mistake["task"], mistake["malus"], mistake["description"])
+                            elif column == 2:
+                                mistake["description"] = modified_value
+                                xl.up_mistakes(mistake["mistakeID"], mistake["task"], mistake["malus"], mistake["description"])
+                            if base_value.checkState() == qtc.Qt.CheckState.Unchecked:
+                                xl.student_rem_mistakes(xl.candidate_nbr(self.student), mistake["mistakeID"])
+                            if base_value.checkState() == qtc.Qt.CheckState.Checked:
+                                xl.student_add_mistakes(xl.candidate_nbr(self.student), mistake["mistakeID"])
+                print("Cell ({}, {}) modified w/ : {}".format(row, column, modified_value))
 
     def add_mistake(self):
         row_count = self.ui.mistake_table.rowCount()
@@ -196,8 +203,6 @@ class MainWindow(baseClass):
                     mistake_id=mistake["mistakeID"]
                     self.mistakes.remove(mistake)
 
-            print(mistake_id)
-
             if mistake_id != None:
                 xl.del_mistakes(mistake_id)
 
@@ -220,11 +225,12 @@ class MainWindow(baseClass):
         elif button == QMessageBox.StandardButton.Yes:
             return 1
 
-
     def update_mistakes_tables(self):
+        self.isCharged=False
         self.ui.mistake_table.clearContents()
         self.ui.mistake_table.setRowCount(0)
         count=0
+        mistake_of_this_student = xl.student_get_mistakes(xl.candidate_nbr(self.student))
         for i, mistake in enumerate(self.mistakes):
             if mistake["task"] == self.task:
                 row_count = self.ui.mistake_table.rowCount()
@@ -232,7 +238,11 @@ class MainWindow(baseClass):
 
                 checkbox_item = QTableWidgetItem()
                 checkbox_item.setFlags(checkbox_item.flags() | qtc.Qt.ItemFlag.ItemIsUserCheckable)
-                checkbox_item.setCheckState(qtc.Qt.CheckState.Unchecked)
+                #checkbox_item.stateChanged.connect(lambda state, m_id=mistake["mistakeID"]: handle_checkbox_state_changed(state, m_id))
+                if mistake["mistakeID"] in mistake_of_this_student:
+                    checkbox_item.setCheckState(qtc.Qt.CheckState.Checked)
+                else:
+                    checkbox_item.setCheckState(qtc.Qt.CheckState.Unchecked)
                 if type(mistake["malus"]) is not int :
                     mistake["malus"] = 0
                 self.ui.mistake_table.setItem(row_count, 0, checkbox_item)
@@ -246,6 +256,7 @@ class MainWindow(baseClass):
                 count+=1
 
         self.ui.mistake_table.setRowCount(count)
+        self.isCharged=True
 
     def load_student_data(self, student_nbr):
         row_nr = student_nbr + 4  # first 4 rows does'nt count
