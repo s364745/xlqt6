@@ -185,13 +185,6 @@ class MainWindow(baseClass):
 
     def rm_mistake(self):
         selected_mistake = self.ui.mistake_table.currentRow()
-
-        # Should read mistake description and pass to message box. Not working for now
-
-        # info_cell = self.mistake_table.item(selected_mistake, 1)
-        # info_text = str(info_cell.text())
-        #index = selected_mistake et task = self.task
-
         # Warning
         if selected_mistake >= 0:
             status = self.rm_mistake_warning()
