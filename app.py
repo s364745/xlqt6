@@ -1,4 +1,4 @@
-import sys
+import sys, os
 
 from PyQt6 import QtWidgets as qtw
 from PyQt6 import QtCore as qtc
@@ -302,8 +302,13 @@ class First_window(QMainWindow):
 
 if __name__ == '__main__':
     app = qtw.QApplication(sys.argv)
-    w = First_window()
-    w.show()
+    if os.getenv("LOCAL"):
+        xl.load("Retting.xlsx")
+        w = MainWindow()
+        w.show()
+    else :
+        w = First_window()
+        w.show()
     # w = MainWindow()
     # w.show()
     sys.exit(app.exec())
