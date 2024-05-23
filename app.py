@@ -61,11 +61,6 @@ class MainWindow(baseClass):
 
 
     def load_chart_mistakes(self): #Statistics
-
-        # data
-        #x = ['mistake 1', 'mistake 2', 'mistake 3']
-        #y = [1, 2, 3]
-
         mistakes_task=[]
         for i, mistake in enumerate(self.mistakes):
             if mistake["task"] == self.task:
@@ -107,7 +102,6 @@ class MainWindow(baseClass):
         self.ui.task_list.itemClicked.connect(self.handle_item_clicked)
 
     def handle_item_clicked(self, item):
-        #print(self.ui.task_list.row(item))
         self.task = self.ui.task_list.row(item)+1
         task_trigger = item.text().split()[-1]  # get the task number
         self.load_student_answers(self.student, int(task_trigger))
@@ -349,7 +343,6 @@ class MainWindow(baseClass):
         self.ui.answer_table.setColumnCount(num_cols - 1)
 
 
-#############################################
 class First_window(QMainWindow):
 
     def __init__(self):

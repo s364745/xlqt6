@@ -119,8 +119,6 @@ def up_mistakes(mist_id, task, subtask, malus, description):
 
 def up_score(student_id, task, points):
     student_row=student_id+4
-    print(task)
-    print(points)
 
     if student_row is None:
         print(f"Student ID {student_id} not found.")
@@ -224,6 +222,3 @@ def get_column_b_occurrences(mistakes):
     column_b_values = [cell.value for row in rs.iter_rows(min_row=2, min_col=2, max_col=2) for cell in row if cell.value in mistakes]
 
     return Counter(column_b_values)
-
-# Check
-#print(organize_subtasks(list_subtasks())[0])
