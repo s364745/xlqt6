@@ -31,6 +31,16 @@ class MainWindow(baseClass):
         self.ui.setupUi(self)
         self.student=1
         self.isCharged=False
+        self.mistakes=[]
+
+        # Statistics
+        self.bar_layout = qtw.QVBoxLayout(self.ui.bar_widget)
+        self.fig, self.ax = plt.subplots()
+        self.ax.set_xlabel('Mistakes')
+        self.ax.set_ylabel('Frequency')
+        self.ui.canvas = FigureCanvas(self.fig)
+        self.bar_layout.addWidget(self.ui.canvas)
+        self.load_chart_mistakes()
 
         # Manage mistakes
         self.load_mistake_headers()
@@ -48,33 +58,42 @@ class MainWindow(baseClass):
 
         self.update_mistakes_tables()
 
-        # Statistics ----------------------------------------
-        bar_layout = qtw.QVBoxLayout(self.ui.bar_widget)
-        self.ui.bar_frame = QWidget()
-        bar_layout.addWidget(self.ui.bar_frame)
-        # Loads bar chart
-        x, y = self.load_chart_mistakes()
-        # Figure for bar chart
-        fig, ax = plt.subplots()
-        ax.bar(x, y)
-        # Labels
-        plt.xlabel('Mistakes')
-        plt.ylabel('Frequency')
 
-        # Matplotlib-canvas-widget
-        self.ui.canvas = FigureCanvas(fig)
-        bar_layout.addWidget(self.ui.canvas)
-        # ----------------------------------------------------
+    def load_chart_mistakes(self): #Statistics
 
-        # Code stops here
+        # data
+        #x = ['mistake 1', 'mistake 2', 'mistake 3']
+        #y = [1, 2, 3]
 
-    # Statistics
-    def load_chart_mistakes(self):
+        mistakes_task=[]
+        for i, mistake in enumerate(self.mistakes):
+            if mistake["task"] == self.task:
+                mistakes_task.append(mistake["mistakeID"])
 
-        # Dummy data, needs read data from excel
-        x = ['mistake 1', 'mistake 2', 'mistake 3']
-        y = [1, 2, 3]
-        return x, y
+        column_b_occurrences = xl.get_column_b_occurrences(mistakes_task)
+
+        id_mistakes = list(column_b_occurrences.keys())
+        y = list(column_b_occurrences.values())
+
+        x = []
+
+        for index in id_mistakes:
+            for mistake in self.mistakes:
+                if mistake["mistakeID"] == index:
+                    if mistake["description"] == None:
+                        x.append("None")
+                    else:
+                        x.append(mistake["index"]+1)
+                    break
+
+        # delete existing
+        self.ax.clear()
+
+        # new one
+        self.ax.bar(x, y)
+
+        # update the graph
+        self.ui.canvas.draw()
 
     def load_task_list(self):
         number = len(xl.find_task_numbers())
@@ -126,6 +145,7 @@ class MainWindow(baseClass):
             item = QTableWidgetItem(str(subtask_answers[i]))
             self.ui.answer_table.setItem(i, 1, item)
 
+        self.load_chart_mistakes()
         self.update_progress_bar()
         self.update_mistakes_tables()
 
@@ -171,6 +191,7 @@ class MainWindow(baseClass):
                             if base_value.checkState() == qtc.Qt.CheckState.Checked:
                                 xl.student_add_mistakes(xl.candidate_nbr(self.student), mistake["mistakeID"])
                 print("Cell ({}, {}) modified w/ : {}".format(row, column, modified_value))
+        self.load_chart_mistakes()
 
     def add_mistake(self):
         row_count = self.ui.mistake_table.rowCount()
@@ -183,6 +204,7 @@ class MainWindow(baseClass):
         item.setFlags(item.flags() | qtc.Qt.ItemFlag.ItemIsUserCheckable)
         item.setCheckState(qtc.Qt.CheckState.Unchecked)
         self.ui.mistake_table.setItem(row_count, 0, item)
+        self.load_chart_mistakes()
 
     def rm_mistake(self):
         selected_mistake = self.ui.mistake_table.currentRow()
@@ -205,6 +227,7 @@ class MainWindow(baseClass):
             elif status == 1:
                 # if selected_mistake >= 0:
                 self.ui.mistake_table.removeRow(selected_mistake)
+        self.load_chart_mistakes()
 
     def rm_mistake_warning(self):
         button = QMessageBox.warning(

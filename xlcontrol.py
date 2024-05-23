@@ -1,6 +1,7 @@
 # OpenPyXl
 from openpyxl.workbook import Workbook
 from openpyxl import load_workbook
+from collections import Counter
 
 token = "xlqt" # token after every sheets name to avoid writting over anything else
 wb = None
@@ -34,7 +35,6 @@ def load(excel_file):
         wb.save(excel_file_name)
     else:
         ms = wb["mistakes_"+token]
-
 
 def subtasks_per_tasks(task_number):
     list_of_subtasks = organize_subtasks(list_subtasks())[task_number - 1]
@@ -177,6 +177,10 @@ def nearby_cell(selected_cell, direction):
         next_cell = ws.cell(row=selected_cell.row + 1, column=selected_cell.column)
         return next_cell
 
+def get_column_b_occurrences(mistakes):
+    column_b_values = [cell.value for row in rs.iter_rows(min_row=2, min_col=2, max_col=2) for cell in row if cell.value in mistakes]
+
+    return Counter(column_b_values)
 
 # Check
 #print(organize_subtasks(list_subtasks())[0])
