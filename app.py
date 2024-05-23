@@ -294,6 +294,7 @@ class First_window(QMainWindow):
         file_dialog = QFileDialog()
         file_path, _ = file_dialog.getOpenFileName(self, "Select file", "", "Excel files (*.xlsx);;All files (*)")
         if file_path:
+            xl.load(file_path)
             self.close()
             w = MainWindow()
             w.show()

@@ -3,31 +3,37 @@ from openpyxl.workbook import Workbook
 from openpyxl import load_workbook
 
 token = "xlqt" # token after every sheets name to avoid writting over anything else
-excel_file_name = 'Retting.xlsx'
-
-wb = load_workbook(excel_file_name)
-ws = wb[wb.sheetnames[0]]
-# ws : active sheet, rs : result sheet, ms : mistakes sheet
-
+wb = None
+ws = None
 rs = None
 ms = None
-if "student_mistakes_"+token not in wb.sheetnames:
-    rs = wb.create_sheet("student_mistakes_"+token)
-    rs["A1"]="Student ID"
-    rs["B1"]="Mistake(s)"
-    wb.save(excel_file_name)
-else:
-    rs = wb["student_mistakes_"+token]
+excel_file_name = None #"Retting.xlsx"
 
-if "mistakes_"+token not in wb.sheetnames:
-    ms = wb.create_sheet("mistakes_"+token)
-    ms["A1"]="Mistake ID"
-    ms["B1"]="Task ID"
-    ms["C1"]="Malus"
-    ms["D1"]="Description"
-    wb.save(excel_file_name)
-else:
-    ms = wb["mistakes_"+token]
+def load(excel_file):
+    global wb, ws, rs, ms, excel_file_name
+    excel_file_name = excel_file
+
+    # ws : active sheet, rs : result sheet, ms : mistakes sheet
+    wb = load_workbook(excel_file_name)
+    ws = wb[wb.sheetnames[0]]
+
+    if "student_mistakes_"+token not in wb.sheetnames:
+        rs = wb.create_sheet("student_mistakes_"+token)
+        rs["A1"]="Student ID"
+        rs["B1"]="Mistake(s)"
+        wb.save(excel_file_name)
+    else:
+        rs = wb["student_mistakes_"+token]
+
+    if "mistakes_"+token not in wb.sheetnames:
+        ms = wb.create_sheet("mistakes_"+token)
+        ms["A1"]="Mistake ID"
+        ms["B1"]="Task ID"
+        ms["C1"]="Malus"
+        ms["D1"]="Description"
+        wb.save(excel_file_name)
+    else:
+        ms = wb["mistakes_"+token]
 
 
 def subtasks_per_tasks(task_number):
