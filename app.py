@@ -4,7 +4,8 @@ from PyQt6 import QtWidgets as qtw
 from PyQt6 import QtCore as qtc
 from PyQt6 import QtGui as qtq
 from PyQt6 import uic
-from PyQt6.QtWidgets import QVBoxLayout, QListWidgetItem, QTableWidgetItem, QWidget, QMessageBox
+from PyQt6.QtWidgets import QVBoxLayout, QListWidgetItem, QTableWidgetItem, QWidget, QMessageBox, QMainWindow, \
+    QPushButton, QFileDialog
 
 # For statistics
 import matplotlib.pyplot as plt
@@ -275,11 +276,33 @@ class MainWindow(baseClass):
         num_cols = self.ui.answer_table.columnCount()
         self.ui.answer_table.setColumnCount(num_cols - 1)
 
-    # Dummy Chart
+
+#############################################
+class First_window(QMainWindow):
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Upload file")
+        self.setGeometry(100, 100, 300, 200)
+
+        self.upload_button = QPushButton("Upload file", self)
+        self.upload_button.setGeometry(50, 50, 200, 100)
+
+        self.upload_button.clicked.connect(self.open_file_dialog)
+
+    def open_file_dialog(self):
+        file_dialog = QFileDialog()
+        file_path, _ = file_dialog.getOpenFileName(self, "Select file", "", "Excel files (*.xlsx);;All files (*)")
+        if file_path:
+            self.close()
+            w = MainWindow()
+            w.show()
 
 
 if __name__ == '__main__':
     app = qtw.QApplication(sys.argv)
-    w = MainWindow()
+    w = First_window()
     w.show()
+    # w = MainWindow()
+    # w.show()
     sys.exit(app.exec())
