@@ -134,22 +134,28 @@ class MainWindow(baseClass):
 
         max_points=xl.extract_max_points(self.task-1)
 
-        mistakes_tot = 0
-        mistakes_made = xl.student_get_mistakes(xl.candidate_nbr(self.student))
-        for m in self.mistakes:
-            if m["task"] == self.task and m["mistakeID"] in mistakes_made and m["malus"] != None:
-                mistakes_tot+=int(m["malus"])
+        mistakes_tot=[]
+        for i,subtask in enumerate(subtask_names[self.task-1]):
+            mistakes_tot.append(0)
+            mistakes_made = xl.student_get_mistakes(xl.candidate_nbr(self.student))
+            for m in self.mistakes:
+                if m["task"] == self.task and m["mistakeID"] in mistakes_made and m["malus"] != None and m["subtask"]==subtask:
+                    mistakes_tot[i]+=int(m["malus"])
 
+        points=[]
+        for i in range(len(subtask_answers)):
+            points.append(max_points[i]-mistakes_tot[i])
+        xl.up_score(self.student, self.task-1, points)
 
         # Load answers to column
         for i in range(len(subtask_answers)):
             item_max_points = QTableWidgetItem(str(max_points[i]))
             self.ui.answer_table.setItem(i, 0, item_max_points)
 
-            item_mistakes_points = QTableWidgetItem(str(mistakes_tot))
+            item_mistakes_points = QTableWidgetItem(str(mistakes_tot[i]))
             self.ui.answer_table.setItem(i, 1, item_mistakes_points)
 
-            item_points = QTableWidgetItem(str(subtask_answers[i]))
+            item_points = QTableWidgetItem(str(points[i]))
             self.ui.answer_table.setItem(i, 2, item_points)
 
     def load_student_answers(self, student, task_number):
@@ -206,12 +212,14 @@ class MainWindow(baseClass):
                             if column == 1:
                                 mistake["malus"] = int(modified_value)
                                 xl.up_mistakes(mistake["mistakeID"], mistake["task"], mistake["subtask"], mistake["malus"], mistake["description"])
+                                self.load_main_tab()
                             elif column == 2:
                                 mistake["description"] = modified_value
                                 xl.up_mistakes(mistake["mistakeID"], mistake["task"], mistake["subtask"], mistake["malus"], mistake["description"])
                             elif column == 3:
                                 mistake["subtask"] = modified_value
                                 xl.up_mistakes(mistake["mistakeID"], mistake["task"], mistake["subtask"], mistake["malus"], mistake["description"])
+                                self.load_main_tab()
                             if base_value != None and base_value.checkState() == qtc.Qt.CheckState.Unchecked:
                                 xl.student_rem_mistakes(xl.candidate_nbr(self.student), mistake["mistakeID"])
                                 self.load_main_tab()

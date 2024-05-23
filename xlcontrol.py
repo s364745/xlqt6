@@ -117,6 +117,26 @@ def up_mistakes(mist_id, task, subtask, malus, description):
                 row[4].value = description
     wb.save(excel_file_name)
 
+def up_score(student_id, task, points):
+    student_row=student_id+4
+    print(task)
+    print(points)
+
+    if student_row is None:
+        print(f"Student ID {student_id} not found.")
+        return
+
+    index=[]
+    for cell in [cell[0] for cell in ws.iter_cols(min_row=3, max_row=3, min_col=2)]:
+        if cell.value == "a":
+            index.append(cell.column)
+
+    first_index = index[task]
+    for i, cell in enumerate([cell[0] for cell in ws.iter_cols(min_row=student_row, max_row=student_row, min_col=first_index, max_col=first_index+len(points)-1)]):
+        cell.value=points[i]
+
+    wb.save(excel_file_name)
+
 def del_mistakes(mist_id):
     rng = ms.iter_rows(min_row=2, max_row=ms.max_row, min_col=1, max_col=ws.max_column)
 
