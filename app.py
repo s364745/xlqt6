@@ -102,7 +102,8 @@ class MainWindow(baseClass):
             item = QListWidgetItem(f'Task {str(i + 1)}')
             self.ui.task_list.addItem(item)
             if xl.mistakesnumber() < number:
-                self.mistakes.append({ "mistakeID" : xl.add_mistakes(i+1), "task" : i+1, "index" : 0, "malus" : 0, "description" : "" }) # to add to the excel files
+                default_subtask=xl.organize_subtasks(xl.list_subtasks())[self.task-1][0]
+                self.mistakes.append({ "mistakeID" : xl.add_mistakes(i+1, default_subtask), "task" : i+1, "subtask" : default_subtask, "index" : 0, "malus" : 0, "description" : "" }) # to add to the excel files
         self.ui.task_list.itemClicked.connect(self.handle_item_clicked)
 
     def handle_item_clicked(self, item):
@@ -193,39 +194,45 @@ class MainWindow(baseClass):
 
     def up_mistake(self, row, column):
         if self.isCharged:
-            if column in (0, 1, 2) :
+            if column in (0, 1, 2, 3) :
                 base_value = self.ui.mistake_table.item(row, column) 
-                modified_value = base_value.text()
-                if modified_value != "" or base_value.checkState() != None:
+                if column < 3:
+                    modified_value = base_value.text()
+                else:
+                    modified_value = self.ui.mistake_table.cellWidget(row, column).currentText()
+                if modified_value != "" or base_value != None and base_value.checkState() != None:
                     for mistake in self.mistakes:
                         if mistake["index"] == row and mistake["task"] == self.task:
                             if column == 1:
                                 mistake["malus"] = int(modified_value)
-                                xl.up_mistakes(mistake["mistakeID"], mistake["task"], mistake["malus"], mistake["description"])
+                                xl.up_mistakes(mistake["mistakeID"], mistake["task"], mistake["subtask"], mistake["malus"], mistake["description"])
                             elif column == 2:
                                 mistake["description"] = modified_value
-                                xl.up_mistakes(mistake["mistakeID"], mistake["task"], mistake["malus"], mistake["description"])
-                            if base_value.checkState() == qtc.Qt.CheckState.Unchecked:
+                                xl.up_mistakes(mistake["mistakeID"], mistake["task"], mistake["subtask"], mistake["malus"], mistake["description"])
+                            elif column == 3:
+                                mistake["subtask"] = modified_value
+                                xl.up_mistakes(mistake["mistakeID"], mistake["task"], mistake["subtask"], mistake["malus"], mistake["description"])
+                            if base_value != None and base_value.checkState() == qtc.Qt.CheckState.Unchecked:
                                 xl.student_rem_mistakes(xl.candidate_nbr(self.student), mistake["mistakeID"])
                                 self.load_main_tab()
-                            if base_value.checkState() == qtc.Qt.CheckState.Checked:
+                            if base_value != None and base_value.checkState() == qtc.Qt.CheckState.Checked:
                                 xl.student_add_mistakes(xl.candidate_nbr(self.student), mistake["mistakeID"])
                                 self.load_main_tab()
-                print("Cell ({}, {}) modified w/ : {}".format(row, column, modified_value))
+            print("Cell ({}, {}) modified w/ : {}".format(row, column, modified_value))
         self.load_chart_mistakes()
 
     def add_mistake(self):
         row_count = self.ui.mistake_table.rowCount()
         self.ui.mistake_table.insertRow(row_count)
 
+        default_subtask=xl.organize_subtasks(xl.list_subtasks())[self.task-1][0]
+        self.mistakes.append({ "mistakeID" : xl.add_mistakes(self.task, default_subtask), "task" : self.task, "subtask" : default_subtask, "index" : self.ui.mistake_table.rowCount()-1, "malus" : 0, "description" : "" }) # to add to the excel files
 
-        self.mistakes.append({ "mistakeID" : xl.add_mistakes(self.task), "task" : self.task, "index" : self.ui.mistake_table.rowCount()-1, "malus" : 0, "description" : "" }) # to add to the excel files
-
-        # Dropdown on col 4 -----------
+        # Dropdown on col 3
         comboBox = QComboBox()
-        comboBox.addItems(["Option 1", "Option 2", "Option 3"])
-        self.setCellWidget(row_count, 4, comboBox)
-        # -----------------------------------------
+        comboBox.addItems(xl.organize_subtasks(xl.list_subtasks())[self.task-1])
+        comboBox.currentIndexChanged.connect(lambda _, r=row_count: self.up_mistake(r, 3))
+        self.ui.mistake_table.setCellWidget(row_count, 3, comboBox)
 
         item = QTableWidgetItem()
         item.setFlags(item.flags() | qtc.Qt.ItemFlag.ItemIsUserCheckable)
@@ -279,6 +286,13 @@ class MainWindow(baseClass):
             if mistake["task"] == self.task:
                 row_count = self.ui.mistake_table.rowCount()
                 self.ui.mistake_table.insertRow(row_count)
+
+                comboBox = QComboBox()
+                subtask_list=xl.organize_subtasks(xl.list_subtasks())[self.task-1]
+                comboBox.addItems(subtask_list)
+                self.ui.mistake_table.setCellWidget(row_count, 3, comboBox)
+                comboBox.currentIndexChanged.connect(lambda _, r=row_count: self.up_mistake(r, 3))
+                comboBox.setCurrentIndex(subtask_list.index(mistake["subtask"]))
 
                 checkbox_item = QTableWidgetItem()
                 checkbox_item.setFlags(checkbox_item.flags() | qtc.Qt.ItemFlag.ItemIsUserCheckable)

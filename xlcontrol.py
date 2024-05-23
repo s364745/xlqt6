@@ -30,8 +30,9 @@ def load(excel_file):
         ms = wb.create_sheet("mistakes_"+token)
         ms["A1"]="Mistake ID"
         ms["B1"]="Task ID"
-        ms["C1"]="Malus"
-        ms["D1"]="Description"
+        ms["C1"]="Subtask ID"
+        ms["D1"]="Malus"
+        ms["E1"]="Description"
         wb.save(excel_file_name)
     else:
         ms = wb["mistakes_"+token]
@@ -59,10 +60,6 @@ def extract_max_points(task):
     return exercises[task]
 
 
-def subtasks_per_tasks(task_number):
-    list_of_subtasks = organize_subtasks(list_subtasks())[task_number - 1]
-    print('subtasks_per_task: ', list_of_subtasks)
-
 def student_get_mistakes(student_id):
     mistakes=[]
     for row in rs.iter_rows(min_row=2, max_row=rs.max_row, min_col=1, max_col=rs.max_column):
@@ -88,34 +85,36 @@ def get_mistakes_list():
     mistakes = []
     for m in rng:
         if any(m):
-            mistakes.append({ "mistakeID" :m[0].value, "task" : m[1].value, "index" : 0, "malus" : m[2].value, "description" : m[3].value })
+            mistakes.append({ "mistakeID" :m[0].value, "task" : m[1].value, "subtask" : m[2].value, "index" : 0, "malus" : m[3].value, "description" : m[4].value })
     return mistakes
 
 
-def add_mistakes(task):
+def add_mistakes(task, subtask):
     max_value_col_A = -1
 
     for cell in ms['A'][1:]:
         if cell.value is not None:
             if max_value_col_A is None or int(cell.value) > max_value_col_A:
                 max_value_col_A = cell.value
-    ms.append([max_value_col_A+1, task])
+    ms.append([max_value_col_A+1, task, subtask])
     wb.save(excel_file_name)
     return max_value_col_A+1 # return the ID of the new mistakes
 
 
 #to update mistakes
-def up_mistakes(mist_id, task, malus, description):
+def up_mistakes(mist_id, task, subtask, malus, description):
     rng = ms.iter_rows(min_row=2, max_row=ms.max_row, min_col=1, max_col=ws.max_column)
 
     for row in rng:
         if row[0].value == mist_id:
             if task > 0 :
                 row[1].value = task
+            if subtask != "" :
+                row[2].value = subtask
             if malus != 0:
-                row[2].value = malus
+                row[3].value = malus
             if description != "":
-                row[3].value = description
+                row[4].value = description
     wb.save(excel_file_name)
 
 def del_mistakes(mist_id):
@@ -126,6 +125,7 @@ def del_mistakes(mist_id):
             row[1].value = ""
             row[2].value = ""
             row[3].value = ""
+            row[4].value = ""
     wb.save(excel_file_name)
 
 def mistakesnumber():
