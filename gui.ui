@@ -18,7 +18,7 @@
     <rect>
      <x>90</x>
      <y>520</y>
-     <width>841</width>
+     <width>881</width>
      <height>23</height>
     </rect>
    </property>
@@ -31,7 +31,7 @@
     <rect>
      <x>90</x>
      <y>40</y>
-     <width>541</width>
+     <width>331</width>
      <height>431</height>
     </rect>
    </property>
@@ -44,7 +44,7 @@
     <rect>
      <x>90</x>
      <y>480</y>
-     <width>161</width>
+     <width>101</width>
      <height>24</height>
     </rect>
    </property>
@@ -55,9 +55,9 @@
   <widget class="QPushButton" name="next_student">
    <property name="geometry">
     <rect>
-     <x>460</x>
+     <x>320</x>
      <y>480</y>
-     <width>171</width>
+     <width>101</width>
      <height>24</height>
     </rect>
    </property>
@@ -68,7 +68,7 @@
   <widget class="QPushButton" name="rm_mistake">
    <property name="geometry">
     <rect>
-     <x>650</x>
+     <x>610</x>
      <y>480</y>
      <width>71</width>
      <height>24</height>
@@ -81,7 +81,7 @@
   <widget class="QPushButton" name="add_mistake">
    <property name="geometry">
     <rect>
-     <x>860</x>
+     <x>700</x>
      <y>480</y>
      <width>81</width>
      <height>24</height>
@@ -104,15 +104,16 @@
   <widget class="QTableWidget" name="mistake_table">
    <property name="geometry">
     <rect>
-     <x>650</x>
+     <x>440</x>
      <y>40</y>
-     <width>301</width>
+     <width>501</width>
      <height>431</height>
     </rect>
    </property>
    <property name="columnCount">
-    <number>3</number>
+    <number>4</number>
    </property>
+   <column/>
    <column/>
    <column/>
    <column/>
@@ -169,9 +170,9 @@
   <widget class="QWidget" name="bar_widget" native="true">
    <property name="geometry">
     <rect>
-     <x>1000</x>
+     <x>960</x>
      <y>40</y>
-     <width>431</width>
+     <width>581</width>
      <height>431</height>
     </rect>
    </property>
@@ -179,7 +180,7 @@
   <widget class="QLabel" name="statistics_label">
    <property name="geometry">
     <rect>
-     <x>1240</x>
+     <x>1230</x>
      <y>10</y>
      <width>49</width>
      <height>16</height>

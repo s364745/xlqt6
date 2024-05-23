@@ -5,7 +5,7 @@ from PyQt6 import QtCore as qtc
 from PyQt6 import QtGui as qtq
 from PyQt6 import uic
 from PyQt6.QtWidgets import QVBoxLayout, QListWidgetItem, QTableWidgetItem, QWidget, QMessageBox, QMainWindow, \
-    QPushButton, QFileDialog
+    QPushButton, QFileDialog, QComboBox
 
 # For statistics
 import matplotlib.pyplot as plt
@@ -187,7 +187,7 @@ class MainWindow(baseClass):
 
     # Mistake manager
     def load_mistake_headers(self):
-        headers = ['Apply', 'Points lost', 'Explanation']
+        headers = ['Apply', 'Points lost', 'Explanation', 'Task']
         self.ui.mistake_table.setHorizontalHeaderLabels(headers)
         self.ui.mistake_table.cellChanged.connect(self.up_mistake)
 
@@ -220,6 +220,12 @@ class MainWindow(baseClass):
 
 
         self.mistakes.append({ "mistakeID" : xl.add_mistakes(self.task), "task" : self.task, "index" : self.ui.mistake_table.rowCount()-1, "malus" : 0, "description" : "" }) # to add to the excel files
+
+        # Dropdown on col 4 -----------
+        comboBox = QComboBox()
+        comboBox.addItems(["Option 1", "Option 2", "Option 3"])
+        self.setCellWidget(row_count, 4, comboBox)
+        # -----------------------------------------
 
         item = QTableWidgetItem()
         item.setFlags(item.flags() | qtc.Qt.ItemFlag.ItemIsUserCheckable)
