@@ -136,8 +136,8 @@ class MainWindow(baseClass):
         mistakes_tot = 0
         mistakes_made = xl.student_get_mistakes(xl.candidate_nbr(self.student))
         for m in self.mistakes:
-            if m["task"] == self.task and m["mistakeID"] in mistakes_made:
-                mistakes_tot+=m["malus"]
+            if m["task"] == self.task and m["mistakeID"] in mistakes_made and m["malus"] != None:
+                mistakes_tot+=int(m["malus"])
 
 
         # Load answers to column
