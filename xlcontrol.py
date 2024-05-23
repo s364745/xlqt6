@@ -36,6 +36,29 @@ def load(excel_file):
     else:
         ms = wb["mistakes_"+token]
 
+def extract_max_points(task):
+    row1 = [cell[0] for cell in ws.iter_cols(min_row=1, max_row=1, min_col=2, values_only=True)]
+    row3 = [cell[0] for cell in ws.iter_cols(min_row=3, max_row=3, min_col=2, values_only=True)]
+
+    exercises = []
+
+    exercise = []
+
+    for i, value in enumerate(row3):
+        if value == "a":
+            if exercise:
+                exercises.append(exercise)
+                exercise = []
+        if value is not None:
+            exercise.append(row1[i])
+
+    # Ajouter le dernier exercice à la liste des exercices
+    if exercise:
+        exercises.append(exercise)
+
+    return exercises[task]
+
+
 def subtasks_per_tasks(task_number):
     list_of_subtasks = organize_subtasks(list_subtasks())[task_number - 1]
     print('subtasks_per_task: ', list_of_subtasks)
