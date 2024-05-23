@@ -125,17 +125,7 @@ class MainWindow(baseClass):
         
         return subtask_answers
 
-    def load_student_answers(self, student, task_number):
-        if student >= 0 and student < self.total_student_number:
-            self.student = student
-        self.task = task_number
-
-        # Load right amount of columns
-        self.load_subtasks(self.task)
-
-        # Display candidateNr
-        self.ui.candidate_edit.setText(str(xl.candidate_nbr(self.student)))
-
+    def load_main_tab(self):
         all_answers = self.load_student_data(self.student)
         subtask_names = xl.organize_subtasks(xl.list_subtasks())
         
@@ -160,6 +150,19 @@ class MainWindow(baseClass):
 
             item_points = QTableWidgetItem(str(subtask_answers[i]))
             self.ui.answer_table.setItem(i, 2, item_points)
+
+    def load_student_answers(self, student, task_number):
+        if student >= 0 and student < self.total_student_number:
+            self.student = student
+        self.task = task_number
+
+        # Load right amount of columns
+        self.load_subtasks(self.task)
+
+        # Display candidateNr
+        self.ui.candidate_edit.setText(str(xl.candidate_nbr(self.student)))
+        
+        self.load_main_tab()
 
         self.load_chart_mistakes()
         self.update_progress_bar()
@@ -191,7 +194,7 @@ class MainWindow(baseClass):
     def up_mistake(self, row, column):
         if self.isCharged:
             if column in (0, 1, 2) :
-                base_value = self.ui.mistake_table.item(row, column)
+                base_value = self.ui.mistake_table.item(row, column) 
                 modified_value = base_value.text()
                 if modified_value != "" or base_value.checkState() != None:
                     for mistake in self.mistakes:
@@ -204,10 +207,10 @@ class MainWindow(baseClass):
                                 xl.up_mistakes(mistake["mistakeID"], mistake["task"], mistake["malus"], mistake["description"])
                             if base_value.checkState() == qtc.Qt.CheckState.Unchecked:
                                 xl.student_rem_mistakes(xl.candidate_nbr(self.student), mistake["mistakeID"])
-                                self.load_student_answers(self.student, self.task)
+                                self.load_main_tab()
                             if base_value.checkState() == qtc.Qt.CheckState.Checked:
                                 xl.student_add_mistakes(xl.candidate_nbr(self.student), mistake["mistakeID"])
-                                self.load_student_answers(self.student, self.task)
+                                self.load_main_tab()
                 print("Cell ({}, {}) modified w/ : {}".format(row, column, modified_value))
         self.load_chart_mistakes()
 
